@@ -58,7 +58,7 @@ const WRITE_VERBS = /\b(write(?:s)? (?:to|the|a)|creat(?:e|es|ing) (?:a |the )?(
 function withoutFencedCode(text: string): string {
   const kept: string[] = [];
   let open: { ch: string; len: number } | null = null;
-  for (const line of text.split("\n")) {
+  for (const line of text.split(/\r?\n/)) {
     if (open) {
       const m = /^ {0,3}(`{3,}|~{3,})[ \t]*$/.exec(line);
       if (m && m[1]![0] === open.ch && m[1]!.length >= open.len) open = null;

@@ -16,7 +16,7 @@ stack:
   connection: slotignored
   hosting: GitHub (npm from the first release)
   build: TypeScript (tsc)
-  cicd: ""
+  cicd: GitHub Actions (Ubuntu, macOS, Windows · Node 22 and 24)
   monorepo_tool: slotignored
   package_manager: slotignored
   workspaces: slotignored

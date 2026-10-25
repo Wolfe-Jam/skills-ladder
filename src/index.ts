@@ -1,6 +1,6 @@
 // Find SKILL.md files under a path and rate each one. Read-only.
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
-import { basename, dirname, join, resolve, relative } from "node:path";
+import { basename, dirname, join, resolve, relative, sep } from "node:path";
 import { parseSkill } from "./parse.js";
 import { runChecks, rungOf, type Result, type Rung } from "./checks.js";
 
@@ -62,7 +62,8 @@ export function checkFile(file: string, base = dirname(file)): SkillReport {
     projectFaf: hasProjectFaf(dir),
   });
   const name = skill.frontmatter.data && typeof skill.frontmatter.data.name === "string" ? skill.frontmatter.data.name : null;
-  return { file: relative(base, file) || basename(file), name, rung: rungOf(results), results };
+  // Forward slashes on every platform, so text and --json output read the same on Windows.
+  return { file: (relative(base, file) || basename(file)).split(sep).join("/"), name, rung: rungOf(results), results };
 }
 
 export function checkPath(root: string): SkillReport[] {
