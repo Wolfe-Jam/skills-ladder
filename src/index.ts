@@ -1,5 +1,5 @@
 // Find SKILL.md files under a path and rate each one. Read-only.
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, join, resolve, relative } from "node:path";
 import { parseSkill } from "./parse.js";
 import { runChecks, rungOf, type Result, type Rung } from "./checks.js";
@@ -23,11 +23,21 @@ export function findSkills(root: string): string[] {
   const abs = resolve(root);
   if (statSync(abs).isFile()) return [abs];
   const found: string[] = [];
+  const seen = new Set<string>();
   const walk = (dir: string) => {
+    // Follow symlinked skill folders (common in ~/.claude/skills), once each: a loop stops here.
+    const real = realpathSync(dir);
+    if (seen.has(real)) return;
+    seen.add(real);
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (entry.isDirectory()) {
-        if (!SKIP_DIRS.has(entry.name)) walk(join(dir, entry.name));
-      } else if (entry.name === "SKILL.md") found.push(join(dir, entry.name));
+      const path = join(dir, entry.name);
+      let isDir = entry.isDirectory(), isFile = entry.isFile();
+      if (entry.isSymbolicLink()) {
+        try { const st = statSync(path); isDir = st.isDirectory(); isFile = st.isFile(); } catch { continue; } // a broken link
+      }
+      if (isDir) {
+        if (!SKIP_DIRS.has(entry.name)) walk(path);
+      } else if (isFile && entry.name === "SKILL.md") found.push(path);
     }
   };
   walk(abs);

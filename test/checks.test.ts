@@ -52,10 +52,24 @@ test("GOOD: missing or broken frontmatter fails G1 and the rung", () => {
   assert.equal(status(parseSkill("---\nname: [unclosed\n---\n"), "G1"), "fail");
 });
 
-test("GOOD: client-specific fields warn but don't block", () => {
+test("GOOD G4: fields outside the specification fail, as in skills-ref", () => {
   const s = skill(`name: demo\n${GOOD_DESC}\nargument-hint: "[path]"`);
-  assert.equal(status(s, "G4"), "warn");
-  assert.notEqual(rungOf(runChecks(s, ctx())), "NONE");
+  assert.equal(status(s, "G4"), "fail");
+  assert.equal(rungOf(runChecks(s, ctx())), "NONE");
+  assert.equal(status(skill(`name: demo\n${GOOD_DESC}\nmetadata:\n  argument-hint: "[path]"`), "G4"), "pass");
+});
+
+test("GOOD G2: unicode lowercase names pass; uppercase still fails", () => {
+  assert.equal(status(skill(`name: café-notes\n${GOOD_DESC}`), "G2", ctx("café-notes")), "pass");
+  assert.equal(status(skill(`name: 日本語\n${GOOD_DESC}`), "G2", ctx("日本語")), "pass");
+  assert.equal(status(skill(`name: Café\n${GOOD_DESC}`), "G2", ctx("Café")), "fail");
+});
+
+test("GOOD G5: compatibility is 1–500 characters when present", () => {
+  assert.equal(status(skill(`name: demo\n${GOOD_DESC}`), "G5"), undefined);
+  assert.equal(status(skill(`name: demo\n${GOOD_DESC}\ncompatibility: Needs git.`), "G5"), "pass");
+  assert.equal(status(skill(`name: demo\n${GOOD_DESC}\ncompatibility: ${"x".repeat(501)}`), "G5"), "fail");
+  assert.equal(status(skill(`name: demo\n${GOOD_DESC}\ncompatibility: ""`), "G5"), "fail");
 });
 
 test("BETTER B1: what first, third person", () => {
@@ -66,7 +80,7 @@ test("BETTER B1: what first, third person", () => {
 });
 
 test("BETTER B2: recognises the common trigger phrasings", () => {
-  for (const d of ["Use when the user asks.", "Use this skill whenever a .docx is involved.", "Use this skill any time a deck is mentioned.", "Use for changelogs.", "Triggers include any mention of PDF."])
+  for (const d of ["Use when the user asks.", "Use this skill whenever a .docx is involved.", "Use this skill any time a deck is mentioned.", "Use for changelogs.", "Triggers include any mention of PDF.", "Guidance for visual design when building new UI.", "TRIGGER — whenever the code imports the SDK."])
     assert.equal(status(skill(`name: demo\ndescription: Drafts notes. ${d}`), "B2"), "pass", d);
   assert.equal(status(skill("name: demo\ndescription: Helps with release notes."), "B2"), "fail");
 });
@@ -86,6 +100,11 @@ test("BETTER B9: a missing linked file fails", () => {
   const s = skill(`name: demo\n${GOOD_DESC}`, "See [guide](references/guide.md) and [site](https://example.com).");
   assert.equal(status(s, "B9", ctx("demo", { exists: (p) => p !== "references/guide.md" })), "fail");
   assert.equal(status(s, "B9"), "pass");
+});
+
+test("BETTER B9: placeholders and links inside code fences aren't checked", () => {
+  const s = skill(`name: demo\n${GOOD_DESC}`, "> Also see: [Title](URL)\n\n```md\n[guide](references/missing.md)\n```\n");
+  assert.equal(status(s, "B9", ctx("demo", { exists: () => false })), "pass");
 });
 
 test("BETTER B8: over 500 lines fails", () => {
@@ -135,6 +154,20 @@ test("BEST F6: a repo with project.faf should be pointed to", () => {
   const s = skill(`name: demo\n${GOOD_DESC}`, block(FULL_BLOCK) + BETTER_BODY);
   assert.equal(status(s, "F6", ctx("demo", { projectFaf: true })), "warn");
   assert.equal(status(s, "F6"), undefined);
+});
+
+test("findSkills follows symlinked skill folders, once", async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { findSkills } = await import("../src/index.ts");
+  const root = mkdtempSync(join(tmpdir(), "sl-"));
+  mkdirSync(join(root, "real", "demo"), { recursive: true });
+  writeFileSync(join(root, "real", "demo", "SKILL.md"), "---\nname: demo\n---\n");
+  mkdirSync(join(root, "skills"));
+  symlinkSync(join(root, "real", "demo"), join(root, "skills", "demo"));
+  symlinkSync(root, join(root, "skills", "loop"));
+  assert.equal(findSkills(join(root, "skills")).length, 1); // one skill, reached by a link and again through the loop
 });
 
 const run = (...args: string[]) => spawnSync(process.execPath, ["--import", "tsx", CLI, ...args], { encoding: "utf8" });

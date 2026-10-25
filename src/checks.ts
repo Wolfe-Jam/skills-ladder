@@ -1,4 +1,4 @@
-// The ladder's checks, as defined in the spec draft (GOOD G1–G4, BETTER B1–B9, BEST F1–F6).
+// The ladder's checks, as defined in the spec draft (GOOD G1–G5, BETTER B1–B9, BEST F1–F6).
 import type { ParsedSkill } from "./parse.js";
 
 export type Rung = "NONE" | "GOOD" | "BETTER" | "BEST";
@@ -27,15 +27,17 @@ export interface SkillContext {
 /** Frontmatter fields the Agent Skills specification defines. */
 export const SPEC_FIELDS = ["name", "description", "license", "compatibility", "metadata", "allowed-tools"];
 export const MAX_DESCRIPTION = 1024;
+export const MAX_COMPATIBILITY = 500;
 export const MAX_LINES = 500;
 export const MAX_TOKENS = 5000;
 
-const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// Unicode lowercase letters and digits, single hyphens between them: the rule skills-ref applies (after NFKC).
+const NAME = /^[\p{Ll}\p{Lo}\p{N}]+(?:-[\p{Ll}\p{Lo}\p{N}]+)*$/u;
 
 // Description voice and triggers.
 const OPENS_FIRST_OR_SECOND = /^\s*["'(]?\s*(i|i'm|i am|my|me|we|our|you|your|you're)\b/i;
 const OPENS_WITH_TRIGGER = /^\s*["'(]?\s*(use|invoke|trigger|activate|call|run)\b/i;
-const WHEN = /\b(use[sd]?\s+(?:it\s+|this\s+(?:skill\s+)?)?(?:when|whenever|if|for|any\s?time)\b|when\s+(?:the\s+)?(?:user|you|working|asked|someone|a user)\b|\btrigger(?:s|ed)?\s+(?:when|on|by|include)\b)/i;
+const WHEN = /\b(use[sd]?\s+(?:it\s+|this\s+(?:skill\s+)?)?(?:when|whenever|if|for|any\s?time)\b|when\s+(?:the\s+)?(?:user|you|working|asked|someone|a user)\b|when\s+\w+ing\b|whenever\b|trigger(?:s|ed)?\b)/i;
 const NOT_FOR = /\b(not for|don'?t use|do not use|avoid (?:using )?(?:it|this) (?:for|when))\b/i;
 
 // Body sections, written as a heading or a label at the start of a line.
@@ -69,11 +71,12 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
   else add("G1", "GOOD", "Frontmatter is present and parses", "pass");
 
   const data = fm.data ?? {};
-  const name = str(data.name);
+  const rawName = str(data.name);
+  const name = rawName === null ? null : rawName.trim().normalize("NFKC");
   if (!name) add("G2", "GOOD", "Name is valid and matches its folder", "fail", "`name` is missing or not a string.");
   else if (name.length > 64 || !NAME.test(name))
     add("G2", "GOOD", "Name is valid and matches its folder", "fail", `\`${name}\`: use 1–64 lowercase letters, digits and single hyphens, not at the start or end.`);
-  else if (name !== ctx.dir)
+  else if (name !== ctx.dir.normalize("NFKC"))
     add("G2", "GOOD", "Name is valid and matches its folder", "fail", `\`${name}\` doesn't match its folder \`${ctx.dir}\`. Rename one so they match.`);
   else add("G2", "GOOD", "Name is valid and matches its folder", "pass");
 
@@ -85,8 +88,15 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
 
   const extra = Object.keys(data).filter((k) => !SPEC_FIELDS.includes(k));
   if (fm.data && extra.length)
-    add("G4", "GOOD", "Frontmatter uses specification fields", "warn", `Not in the specification: ${extra.map((k) => `\`${k}\``).join(", ")}. Fine in the client that reads them; other agents ignore them.`);
-  else if (fm.data) add("G4", "GOOD", "Frontmatter uses specification fields", "pass");
+    add("G4", "GOOD", "Frontmatter uses only specification fields", "fail", `Not in the specification: ${extra.map((k) => `\`${k}\``).join(", ")}. The reference validator (skills-ref) rejects them. Move them under \`metadata\`, or keep them only in the client that reads them.`);
+  else if (fm.data) add("G4", "GOOD", "Frontmatter uses only specification fields", "pass");
+
+  if (fm.data && "compatibility" in data) {
+    const c = data.compatibility;
+    if (typeof c !== "string" || c.trim() === "") add("G5", "GOOD", `Compatibility is 1–${MAX_COMPATIBILITY} characters`, "fail", "`compatibility` must be a non-empty string.");
+    else if (c.length > MAX_COMPATIBILITY) add("G5", "GOOD", `Compatibility is 1–${MAX_COMPATIBILITY} characters`, "fail", `${c.length} characters, over the limit of ${MAX_COMPATIBILITY}.`);
+    else add("G5", "GOOD", `Compatibility is 1–${MAX_COMPATIBILITY} characters`, "pass");
+  }
 
   // ---- BETTER: chosen correctly, used safely ----
   const d = desc ?? "";
@@ -127,9 +137,12 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
   else if (tokens > MAX_TOKENS) add("B8", "BETTER", `Under ${MAX_LINES} lines and about ${MAX_TOKENS} tokens`, "warn", `About ${tokens} tokens (estimated from length). Move detail into files in references/.`);
   else add("B8", "BETTER", `Under ${MAX_LINES} lines and about ${MAX_TOKENS} tokens`, "pass", `${skill.lines} lines, about ${tokens} tokens`);
 
-  const links = [...skill.body.matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)]
+  const outsideFences = skill.body.replace(/^(\s*)(```|~~~)[\s\S]*?^\1\2[^\n]*$/gm, "");
+  const links = [...outsideFences.matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)]
     .map((m) => (m[1] ?? "").split("#")[0] ?? "")
-    .filter((h) => h && !/^[a-z][a-z0-9+.-]*:/i.test(h) && !h.startsWith("/"));
+    .filter((h) => h && !/^[a-z][a-z0-9+.-]*:/i.test(h) && !h.startsWith("/"))
+    // A local file link looks like a path; `[Title](URL)` in a template is a placeholder.
+    .filter((h) => /[./]/.test(h));
   const missing = [...new Set(links.filter((h) => !ctx.exists(h)))];
   if (missing.length) add("B9", "BETTER", "Linked files exist", "fail", `Missing: ${missing.map((h) => `\`${h}\``).join(", ")}`);
   else add("B9", "BETTER", "Linked files exist", "pass", links.length ? `${links.length} checked` : "no local links");

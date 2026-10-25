@@ -10,11 +10,13 @@ An agent picks a skill by its description and uses it through its body. This che
 
 | Rung | Means |
 |---|---|
-| **GOOD** | Valid: passes the [specification](https://agentskills.io/specification)'s hard rules |
-| **BETTER** | An agent can choose it correctly and use it safely |
+| **GOOD** | Valid: passes the [specification](https://agentskills.io/specification)'s hard rules, the same ones its reference validator (`skills-ref`) checks |
+| **BETTER** | Says when to use it, what it needs, what it touches, its steps, and when it's done |
 | **BEST** | BETTER, with those facts in a small block a tool can check |
 
 A skill that doesn't pass GOOD is reported as `NONE`.
+
+The specification asks only for GOOD. BETTER and BEST are this project's view of what an agent needs beyond that, and most skills today stop at GOOD. Run it on yours to see what's missing.
 
 For general linting (formatting, auto-fix, security scanning), use a linter such as [`skill-check`](https://www.npmjs.com/package/skill-check) as well. `skills-ladder` checks what linters don't: whether the skill says what it needs, what it touches and when it's done.
 
@@ -42,9 +44,10 @@ By default each skill shows the failures that stand between it and the next rung
 | ID | Check |
 |---|---|
 | G1 | Frontmatter is present and parses as YAML |
-| G2 | `name` is 1–64 lowercase letters, digits and single hyphens, and matches its folder |
+| G2 | `name` is 1–64 lowercase letters (Unicode), digits and single hyphens, and matches its folder |
 | G3 | `description` is 1–1024 characters |
-| G4 | *(warning)* Frontmatter fields are specification fields. Client-specific fields are fine in their client |
+| G4 | Frontmatter uses only specification fields. Put client-specific fields under `metadata` |
+| G5 | `compatibility`, if present, is 1–500 characters |
 
 **BETTER**: chosen correctly, used safely
 
@@ -113,6 +116,15 @@ done_when: CHANGELOG.md has one new section; nothing pushed
 The specification puts no format rules on the body, so the block is valid in any skill today. The body loads only when the skill is used, so the block costs nothing when an agent is choosing between skills.
 
 The block holds facts only. Name access (`GITHUB_TOKEN`), never its value.
+
+## The project around the skills
+
+`skills-ladder` rates each skill. The repo they live in can carry a `project.faf`, which [faf-cli](https://www.npmjs.com/package/faf-cli) scores against its app-type: `skills` for SKILL.md folders, `skills-plugin` for skills shipped as a plugin with a build and CI. The FAF block's `project` field points to it, and F6 checks that it does.
+
+```bash
+npx faf-cli auto                                # the repo: project.faf
+npx skills-ladder skills --fail-under BEST      # each skill
+```
 
 ## Options
 
