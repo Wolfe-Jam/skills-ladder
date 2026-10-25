@@ -1,0 +1,26 @@
+{
+  "name": "skills-ladder",
+  "version": "0.1.0",
+  "description": "Rate Agent Skills (SKILL.md) on a ladder: GOOD (valid), BETTER (an agent can choose it correctly and use it safely), BEST (the facts in a checkable block). Read-only.",
+  "type": "module",
+  "bin": { "skills-ladder": "dist/cli.js" },
+  "main": "dist/index.js",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"test/*.test.ts\"",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "prepublishOnly": "npm run clean && npm run build && npm run typecheck && npm test"
+  },
+  "keywords": ["agent-skills", "skill.md", "skills", "linter", "checker", "agents", "mcp"],
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "repository": { "type": "git", "url": "git+https://github.com/Wolfe-Jam/skills-ladder.git" },
+  "dependencies": { "yaml": "^2.8.1" },
+  "devDependencies": { "@types/node": "^26.2.0", "tsx": "^4.22.4", "typescript": "^6.0.3" }
+}
