@@ -47,7 +47,7 @@ By default each skill shows the failures that stand between it and the next rung
 | G2 | `name` is 1–64 lowercase letters (Unicode), digits and single hyphens, and matches its folder |
 | G3 | `description` is 1–1024 characters |
 | G4 | Frontmatter uses only specification fields. Put client-specific fields under `metadata` |
-| G5 | `compatibility`, if present, is 1–500 characters |
+| G5 | `compatibility`, if present, is a string of at most 500 characters |
 
 **BETTER**: chosen correctly, used safely
 

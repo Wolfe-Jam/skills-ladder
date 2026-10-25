@@ -52,6 +52,25 @@ const STEPS_HEADING = label("steps|workflow|procedure|instructions|how to run|pr
 const PUBLISH_VERBS = /\b(git push|npm publish|cargo publish|twine upload|gh (?:pr|release|issue) create|wrangler deploy|vercel deploy|deploy(?:s|ing)? (?:to|it|the)|publish(?:es|ing)? (?:to|it|the)|post(?:s|ing)? (?:to|on)|send(?:s|ing)? (?:an? )?(?:email|message)|tweet)\b/i;
 const WRITE_VERBS = /\b(write(?:s)? (?:to|the|a)|creat(?:e|es|ing) (?:a |the )?(?:file|folder|directory)|edit(?:s)? (?:the|a)|overwrit(?:e|es)|sed -i|> ?[\w./-]+\.\w+|save(?:s)? (?:to|the))\b/i;
 
+/** The text with fenced code blocks removed. A fence closes on the same
+ *  character, at least as long as the one that opened it, with nothing but
+ *  spaces after it (CommonMark), so "```bash" never closes a block. */
+function withoutFencedCode(text: string): string {
+  const kept: string[] = [];
+  let open: { ch: string; len: number } | null = null;
+  for (const line of text.split("\n")) {
+    if (open) {
+      const m = /^ {0,3}(`{3,}|~{3,})[ \t]*$/.exec(line);
+      if (m && m[1]![0] === open.ch && m[1]!.length >= open.len) open = null;
+      continue;
+    }
+    const m = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+    if (m) { open = { ch: m[1]![0]!, len: m[1]!.length }; continue; }
+    kept.push(line);
+  }
+  return kept.join("\n");
+}
+
 function str(v: unknown): string | null {
   return typeof v === "string" ? v : null;
 }
@@ -93,9 +112,9 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
 
   if (fm.data && "compatibility" in data) {
     const c = data.compatibility;
-    if (typeof c !== "string" || c.trim() === "") add("G5", "GOOD", `Compatibility is 1–${MAX_COMPATIBILITY} characters`, "fail", "`compatibility` must be a non-empty string.");
-    else if (c.length > MAX_COMPATIBILITY) add("G5", "GOOD", `Compatibility is 1–${MAX_COMPATIBILITY} characters`, "fail", `${c.length} characters, over the limit of ${MAX_COMPATIBILITY}.`);
-    else add("G5", "GOOD", `Compatibility is 1–${MAX_COMPATIBILITY} characters`, "pass");
+    if (typeof c !== "string") add("G5", "GOOD", `Compatibility is at most ${MAX_COMPATIBILITY} characters`, "fail", "`compatibility` must be a string.");
+    else if (c.length > MAX_COMPATIBILITY) add("G5", "GOOD", `Compatibility is at most ${MAX_COMPATIBILITY} characters`, "fail", `${c.length} characters, over the limit of ${MAX_COMPATIBILITY}.`);
+    else add("G5", "GOOD", `Compatibility is at most ${MAX_COMPATIBILITY} characters`, "pass");
   }
 
   // ---- BETTER: chosen correctly, used safely ----
@@ -137,7 +156,7 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
   else if (tokens > MAX_TOKENS) add("B8", "BETTER", `Under ${MAX_LINES} lines and about ${MAX_TOKENS} tokens`, "warn", `About ${tokens} tokens (estimated from length). Move detail into files in references/.`);
   else add("B8", "BETTER", `Under ${MAX_LINES} lines and about ${MAX_TOKENS} tokens`, "pass", `${skill.lines} lines, about ${tokens} tokens`);
 
-  const outsideFences = skill.body.replace(/^(\s*)(```|~~~)[\s\S]*?^\1\2[^\n]*$/gm, "");
+  const outsideFences = withoutFencedCode(skill.body);
   const links = [...outsideFences.matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)]
     .map((m) => (m[1] ?? "").split("#")[0] ?? "")
     .filter((h) => h && !/^[a-z][a-z0-9+.-]*:/i.test(h) && !h.startsWith("/"))

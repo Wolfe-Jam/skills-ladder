@@ -65,11 +65,12 @@ test("GOOD G2: unicode lowercase names pass; uppercase still fails", () => {
   assert.equal(status(skill(`name: Café\n${GOOD_DESC}`), "G2", ctx("Café")), "fail");
 });
 
-test("GOOD G5: compatibility is 1–500 characters when present", () => {
+test("GOOD G5: compatibility is a string of at most 500 characters, as in skills-ref", () => {
   assert.equal(status(skill(`name: demo\n${GOOD_DESC}`), "G5"), undefined);
   assert.equal(status(skill(`name: demo\n${GOOD_DESC}\ncompatibility: Needs git.`), "G5"), "pass");
   assert.equal(status(skill(`name: demo\n${GOOD_DESC}\ncompatibility: ${"x".repeat(501)}`), "G5"), "fail");
-  assert.equal(status(skill(`name: demo\n${GOOD_DESC}\ncompatibility: ""`), "G5"), "fail");
+  assert.equal(status(skill(`name: demo\n${GOOD_DESC}\ncompatibility: ""`), "G5"), "pass");
+  assert.equal(status(skill(`name: demo\n${GOOD_DESC}\ncompatibility: [git]`), "G5"), "fail");
 });
 
 test("BETTER B1: what first, third person", () => {
@@ -105,6 +106,14 @@ test("BETTER B9: a missing linked file fails", () => {
 test("BETTER B9: placeholders and links inside code fences aren't checked", () => {
   const s = skill(`name: demo\n${GOOD_DESC}`, "> Also see: [Title](URL)\n\n```md\n[guide](references/missing.md)\n```\n");
   assert.equal(status(s, "B9", ctx("demo", { exists: () => false })), "pass");
+});
+
+test("BETTER B9: a fence with a language tag opens a block, never closes one", () => {
+  const body = "```bash\nREPO=$(echo x)\n```\n\nSee [real](references/real.md).\n\n```markdown\n![Demo](./demos/demo.gif)\n```\n\n````md\n```\n[inner](inner.md)\n````\n";
+  const s = skill(`name: demo\n${GOOD_DESC}`, body);
+  const r = runChecks(s, ctx("demo", { exists: () => false })).find((x) => x.id === "B9");
+  assert.equal(r?.status, "fail");
+  assert.equal(r?.detail, "Missing: `references/real.md`");
 });
 
 test("BETTER B8: over 500 lines fails", () => {
