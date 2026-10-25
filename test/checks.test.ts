@@ -116,6 +116,13 @@ test("BETTER B9: a fence with a language tag opens a block, never closes one", (
   assert.equal(r?.detail, "Missing: `references/real.md`");
 });
 
+test("BETTER B9: fences close in a file with Windows line endings", () => {
+  const body = "```bash\r\necho\r\n```\r\n\r\nSee [real](references/real.md).\r\n";
+  const s = skill(`name: demo\n${GOOD_DESC}`, body);
+  const r = runChecks(s, ctx("demo", { exists: () => false })).find((x) => x.id === "B9");
+  assert.equal(r?.detail, "Missing: `references/real.md`");
+});
+
 test("BETTER B8: over 500 lines fails", () => {
   const s = skill(`name: demo\n${GOOD_DESC}`, "line\n".repeat(600));
   assert.equal(status(s, "B8"), "fail");

@@ -1,0 +1,34 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: '${{ matrix.node }}' }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: The fixture written to BEST rates BEST (dogfood)
+        run: node dist/cli.js test/fixtures/best-notes --fail-under BEST
+      - name: Pack, install and run the bin (the npx path)
+        shell: bash
+        run: |
+          tgz="$PWD/$(npm pack --silent | tail -1)"
+          dir="$(mktemp -d)"
+          cd "$dir"
+          npm init -y > /dev/null
+          npm install --silent "$tgz"
+          npx skills-ladder --version
+          npx skills-ladder "$GITHUB_WORKSPACE/test/fixtures/best-notes" --fail-under BEST
