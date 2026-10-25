@@ -1,4 +1,4 @@
-// The ladder's checks, as defined in the spec draft (GOOD G1–G4, BETTER B1–B9, BEST F1–F6).
+// The ladder's checks, as defined in the spec draft (GOOD G1–G5, BETTER B1–B9, BEST F1–F6).
 import type { ParsedSkill } from "./parse.js";
 
 export type Rung = "NONE" | "GOOD" | "BETTER" | "BEST";
@@ -27,15 +27,17 @@ export interface SkillContext {
 /** Frontmatter fields the Agent Skills specification defines. */
 export const SPEC_FIELDS = ["name", "description", "license", "compatibility", "metadata", "allowed-tools"];
 export const MAX_DESCRIPTION = 1024;
+export const MAX_COMPATIBILITY = 500;
 export const MAX_LINES = 500;
 export const MAX_TOKENS = 5000;
 
-const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// Unicode lowercase letters and digits, single hyphens between them: the rule skills-ref applies (after NFKC).
+const NAME = /^[\p{Ll}\p{Lo}\p{N}]+(?:-[\p{Ll}\p{Lo}\p{N}]+)*$/u;
 
 // Description voice and triggers.
 const OPENS_FIRST_OR_SECOND = /^\s*["'(]?\s*(i|i'm|i am|my|me|we|our|you|your|you're)\b/i;
 const OPENS_WITH_TRIGGER = /^\s*["'(]?\s*(use|invoke|trigger|activate|call|run)\b/i;
-const WHEN = /\b(use[sd]?\s+(?:it\s+|this\s+(?:skill\s+)?)?(?:when|whenever|if|for|any\s?time)\b|when\s+(?:the\s+)?(?:user|you|working|asked|someone|a user)\b|\btrigger(?:s|ed)?\s+(?:when|on|by|include)\b)/i;
+const WHEN = /\b(use[sd]?\s+(?:it\s+|this\s+(?:skill\s+)?)?(?:when|whenever|if|for|any\s?time)\b|when\s+(?:the\s+)?(?:user|you|working|asked|someone|a user)\b|when\s+\w+ing\b|whenever\b|trigger(?:s|ed)?\b)/i;
 const NOT_FOR = /\b(not for|don'?t use|do not use|avoid (?:using )?(?:it|this) (?:for|when))\b/i;
 
 // Body sections, written as a heading or a label at the start of a line.
@@ -49,6 +51,25 @@ const STEPS_HEADING = label("steps|workflow|procedure|instructions|how to run|pr
 // Commands and actions only: the bare nouns ("deploy checks", "publishing") appear in plenty of read-only skills.
 const PUBLISH_VERBS = /\b(git push|npm publish|cargo publish|twine upload|gh (?:pr|release|issue) create|wrangler deploy|vercel deploy|deploy(?:s|ing)? (?:to|it|the)|publish(?:es|ing)? (?:to|it|the)|post(?:s|ing)? (?:to|on)|send(?:s|ing)? (?:an? )?(?:email|message)|tweet)\b/i;
 const WRITE_VERBS = /\b(write(?:s)? (?:to|the|a)|creat(?:e|es|ing) (?:a |the )?(?:file|folder|directory)|edit(?:s)? (?:the|a)|overwrit(?:e|es)|sed -i|> ?[\w./-]+\.\w+|save(?:s)? (?:to|the))\b/i;
+
+/** The text with fenced code blocks removed. A fence closes on the same
+ *  character, at least as long as the one that opened it, with nothing but
+ *  spaces after it (CommonMark), so "```bash" never closes a block. */
+function withoutFencedCode(text: string): string {
+  const kept: string[] = [];
+  let open: { ch: string; len: number } | null = null;
+  for (const line of text.split("\n")) {
+    if (open) {
+      const m = /^ {0,3}(`{3,}|~{3,})[ \t]*$/.exec(line);
+      if (m && m[1]![0] === open.ch && m[1]!.length >= open.len) open = null;
+      continue;
+    }
+    const m = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+    if (m) { open = { ch: m[1]![0]!, len: m[1]!.length }; continue; }
+    kept.push(line);
+  }
+  return kept.join("\n");
+}
 
 function str(v: unknown): string | null {
   return typeof v === "string" ? v : null;
@@ -69,11 +90,12 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
   else add("G1", "GOOD", "Frontmatter is present and parses", "pass");
 
   const data = fm.data ?? {};
-  const name = str(data.name);
+  const rawName = str(data.name);
+  const name = rawName === null ? null : rawName.trim().normalize("NFKC");
   if (!name) add("G2", "GOOD", "Name is valid and matches its folder", "fail", "`name` is missing or not a string.");
   else if (name.length > 64 || !NAME.test(name))
     add("G2", "GOOD", "Name is valid and matches its folder", "fail", `\`${name}\`: use 1–64 lowercase letters, digits and single hyphens, not at the start or end.`);
-  else if (name !== ctx.dir)
+  else if (name !== ctx.dir.normalize("NFKC"))
     add("G2", "GOOD", "Name is valid and matches its folder", "fail", `\`${name}\` doesn't match its folder \`${ctx.dir}\`. Rename one so they match.`);
   else add("G2", "GOOD", "Name is valid and matches its folder", "pass");
 
@@ -85,8 +107,15 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
 
   const extra = Object.keys(data).filter((k) => !SPEC_FIELDS.includes(k));
   if (fm.data && extra.length)
-    add("G4", "GOOD", "Frontmatter uses specification fields", "warn", `Not in the specification: ${extra.map((k) => `\`${k}\``).join(", ")}. Fine in the client that reads them; other agents ignore them.`);
-  else if (fm.data) add("G4", "GOOD", "Frontmatter uses specification fields", "pass");
+    add("G4", "GOOD", "Frontmatter uses only specification fields", "fail", `Not in the specification: ${extra.map((k) => `\`${k}\``).join(", ")}. The reference validator (skills-ref) rejects them. Move them under \`metadata\`, or keep them only in the client that reads them.`);
+  else if (fm.data) add("G4", "GOOD", "Frontmatter uses only specification fields", "pass");
+
+  if (fm.data && "compatibility" in data) {
+    const c = data.compatibility;
+    if (typeof c !== "string") add("G5", "GOOD", `Compatibility is at most ${MAX_COMPATIBILITY} characters`, "fail", "`compatibility` must be a string.");
+    else if (c.length > MAX_COMPATIBILITY) add("G5", "GOOD", `Compatibility is at most ${MAX_COMPATIBILITY} characters`, "fail", `${c.length} characters, over the limit of ${MAX_COMPATIBILITY}.`);
+    else add("G5", "GOOD", `Compatibility is at most ${MAX_COMPATIBILITY} characters`, "pass");
+  }
 
   // ---- BETTER: chosen correctly, used safely ----
   const d = desc ?? "";
@@ -106,11 +135,11 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
   const bd = skill.block?.data ?? null;
   const prose = skill.prose;
 
-  if (bd && "needs" in bd) add("B4", "BETTER", "Body says what it needs", "pass", "In the FAF block.");
+  if (bd && "needs" in bd) add("B4", "BETTER", "Body says what it needs", "pass", "In the FAF Block.");
   else if (NEEDS.test(prose)) add("B4", "BETTER", "Body says what it needs", "pass");
   else add("B4", "BETTER", "Body says what it needs", "fail", "Add a Needs line: tools, versions and access, and what to do if one is missing.");
 
-  if (bd && ("writes" in bd || "reads" in bd || "publishes" in bd)) add("B5", "BETTER", "Body says what it touches", "pass", "In the FAF block.");
+  if (bd && ("writes" in bd || "reads" in bd || "publishes" in bd)) add("B5", "BETTER", "Body says what it touches", "pass", "In the FAF Block.");
   else if (TOUCHES.test(prose)) add("B5", "BETTER", "Body says what it touches", "pass");
   else add("B5", "BETTER", "Body says what it touches", "fail", "Say what it reads, what it writes, and whether it sends or publishes anything. An agent should know before step 1.");
 
@@ -118,7 +147,7 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
   if (numbered || STEPS_HEADING.test(prose)) add("B6", "BETTER", "Body gives ordered steps", "pass");
   else add("B6", "BETTER", "Body gives ordered steps", "fail", "Give the work as a numbered list of steps.");
 
-  if (bd && str(bd.done_when)) add("B7", "BETTER", "Body says when it is done", "pass", "In the FAF block.");
+  if (bd && str(bd.done_when)) add("B7", "BETTER", "Body says when it is done", "pass", "In the FAF Block.");
   else if (DONE.test(prose)) add("B7", "BETTER", "Body says when it is done", "pass");
   else add("B7", "BETTER", "Body says when it is done", "fail", "Add a Done when line: the finished state of the work (files, results), not a step in the conversation.");
 
@@ -127,26 +156,29 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
   else if (tokens > MAX_TOKENS) add("B8", "BETTER", `Under ${MAX_LINES} lines and about ${MAX_TOKENS} tokens`, "warn", `About ${tokens} tokens (estimated from length). Move detail into files in references/.`);
   else add("B8", "BETTER", `Under ${MAX_LINES} lines and about ${MAX_TOKENS} tokens`, "pass", `${skill.lines} lines, about ${tokens} tokens`);
 
-  const links = [...skill.body.matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)]
+  const outsideFences = withoutFencedCode(skill.body);
+  const links = [...outsideFences.matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)]
     .map((m) => (m[1] ?? "").split("#")[0] ?? "")
-    .filter((h) => h && !/^[a-z][a-z0-9+.-]*:/i.test(h) && !h.startsWith("/"));
+    .filter((h) => h && !/^[a-z][a-z0-9+.-]*:/i.test(h) && !h.startsWith("/"))
+    // A local file link looks like a path; `[Title](URL)` in a template is a placeholder.
+    .filter((h) => /[./]/.test(h));
   const missing = [...new Set(links.filter((h) => !ctx.exists(h)))];
   if (missing.length) add("B9", "BETTER", "Linked files exist", "fail", `Missing: ${missing.map((h) => `\`${h}\``).join(", ")}`);
   else add("B9", "BETTER", "Linked files exist", "pass", links.length ? `${links.length} checked` : "no local links");
 
-  // ---- BEST: the FAF block ----
+  // ---- BEST: the FAF Block ----
   const blk = skill.block;
   if (!blk) {
-    add("F1", "BEST", "One FAF block, right after the frontmatter", "fail", "No FAF block. Add one between `<!-- faf:start -->` and `<!-- faf:end -->` (see the README).");
+    add("F1", "BEST", "One FAF Block, right after the frontmatter", "fail", "No FAF Block. Add one between `<!-- faf:start -->` and `<!-- faf:end -->` (see the README).");
     for (const [id, t] of [["F2", "The block's YAML parses"], ["F3", "Required fields, right types"]] as const)
-      add(id, "BEST", t, "skip", "No FAF block.");
+      add(id, "BEST", t, "skip", "No FAF Block.");
     return out;
   }
   if (blk.starts !== 1 || blk.ends !== 1)
-    add("F1", "BEST", "One FAF block, right after the frontmatter", "fail", `Found ${blk.starts} start and ${blk.ends} end markers; use exactly one of each.`);
+    add("F1", "BEST", "One FAF Block, right after the frontmatter", "fail", `Found ${blk.starts} start and ${blk.ends} end markers; use exactly one of each.`);
   else if (!blk.placedFirst)
-    add("F1", "BEST", "One FAF block, right after the frontmatter", "fail", "Move the block above the first heading, right after the frontmatter.");
-  else add("F1", "BEST", "One FAF block, right after the frontmatter", "pass");
+    add("F1", "BEST", "One FAF Block, right after the frontmatter", "fail", "Move the block above the first heading, right after the frontmatter.");
+  else add("F1", "BEST", "One FAF Block, right after the frontmatter", "pass");
 
   if (!blk.data) add("F2", "BEST", "The block's YAML parses", "fail", blk.error ?? "No YAML inside the markers.");
   else add("F2", "BEST", "The block's YAML parses", "pass");

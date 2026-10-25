@@ -13,7 +13,7 @@ Rate Agent Skills (SKILL.md) on a ladder. Read-only.
 
   GOOD    valid: passes the specification's hard rules
   BETTER  an agent can choose it correctly and use it safely
-  BEST    BETTER, with the facts in a checkable FAF block
+  BEST    BETTER, with the facts in a checkable FAF Block
 
 Usage
   skills-ladder [path...]        every SKILL.md under each path (default: .)
