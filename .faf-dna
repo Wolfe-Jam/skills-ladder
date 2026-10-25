@@ -1,0 +1,41 @@
+{
+  "birthCertificate": {
+    "born": "2026-10-25T15:14:14.934Z",
+    "birthDNA": 58,
+    "birthDNASource": "init",
+    "projectDNA": "b894d927ce88d0cd",
+    "certificate": "FAF-2026-SKILLSLA-WH02"
+  },
+  "versions": [
+    {
+      "version": "v1.0.0",
+      "timestamp": "2026-10-25T15:14:14.934Z",
+      "score": 58,
+      "changes": [
+        "Birth — initial context"
+      ],
+      "growth": 0
+    }
+  ],
+  "current": {
+    "version": "v1.0.0",
+    "score": 58,
+    "lastSync": "2026-10-25T15:14:14.934Z"
+  },
+  "growth": {
+    "totalGrowth": 0,
+    "daysActive": 0,
+    "milestones": [
+      {
+        "type": "birth",
+        "score": 58,
+        "date": "2026-10-25T15:14:14.934Z",
+        "version": "v1.0.0",
+        "label": "Birth",
+        "emoji": "🐣"
+      }
+    ]
+  },
+  "lastModified": "2026-10-25T15:14:14.940Z",
+  "format": "faf-dna-v1"
+}
