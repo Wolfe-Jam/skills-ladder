@@ -2,7 +2,7 @@
 
 Glue a skill's facts into the skill, then check they're there.
 
-An agent chooses a skill by its description, then follows its body. The [Agent Skills specification](https://agentskills.io/specification) covers the choosing. Nothing in it says what the skill needs, what it reads and writes, where it reaches, whether it publishes, or when it's done. A **FAF Block** (also called a Context Block) puts those facts at the top of the body, so the model has all of them the moment it opens the skill:
+An agent chooses a skill by its description, then follows its body. The [Agent Skills specification](https://agentskills.io/specification) covers the choosing, plus an optional free-text `compatibility` line for environment needs. It has no field for what the skill reads and writes, where it reaches, whether it publishes, or when it's done. A **FAF Block** (also called a Context Block) puts those facts at the top of the body, so the model has all of them the moment it opens the skill:
 
 ```yaml
 v: 1

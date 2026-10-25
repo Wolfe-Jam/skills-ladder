@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- README: the spec has an optional free-text `compatibility` line for environment needs; the README no longer says it has nothing.
+
 ## 0.1.1 (2026-10-25)
 
 Docs only; no change to the checks.
