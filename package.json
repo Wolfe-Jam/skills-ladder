@@ -1,7 +1,7 @@
 {
   "name": "skills-ladder",
   "version": "0.1.0",
-  "description": "Rate Agent Skills (SKILL.md) on a ladder: GOOD (valid), BETTER (an agent can choose it correctly and use it safely), BEST (the facts in a checkable block). Read-only.",
+  "description": "Glue a skill's facts into SKILL.md with a FAF Block, and check they're there: rates Agent Skills GOOD, BETTER or BEST. Read-only.",
   "type": "module",
   "bin": { "skills-ladder": "dist/cli.js" },
   "main": "dist/index.js",
@@ -17,8 +17,10 @@
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
     "prepublishOnly": "npm run clean && npm run build && npm run typecheck && npm test"
   },
-  "keywords": ["agent-skills", "skill.md", "skills", "linter", "checker", "agents", "mcp"],
+  "keywords": ["agent-skills", "skill.md", "skills", "faf", "faf-block", "context-block", "linter", "checker", "agents"],
   "license": "MIT",
+  "homepage": "https://github.com/Wolfe-Jam/skills-ladder#readme",
+  "bugs": "https://github.com/Wolfe-Jam/skills-ladder/issues",
   "engines": { "node": ">=22" },
   "repository": { "type": "git", "url": "git+https://github.com/Wolfe-Jam/skills-ladder.git" },
   "dependencies": { "yaml": "^2.8.1" },

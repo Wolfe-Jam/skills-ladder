@@ -1,18 +1,30 @@
 # skills-ladder
 
-Rate Agent Skills (`SKILL.md`) on a ladder. Read-only: it never changes a file.
+Glue a skill's facts into the skill, then check they're there.
+
+An agent chooses a skill by its description, then follows its body. The [Agent Skills specification](https://agentskills.io/specification) covers the choosing. Nothing in it says what the skill needs, what it reads and writes, where it reaches, whether it publishes, or when it's done. A **FAF Block** (also called a Context Block) puts those facts at the top of the body, so the model has all of them the moment it opens the skill:
+
+```yaml
+v: 1
+needs: [git, gh >= 2.40]
+reads: [git history, GitHub pull requests]
+writes: [CHANGELOG.md]
+network: [github.com (read)]
+publishes: false
+done_when: CHANGELOG.md has one new section; nothing pushed
+```
+
+`skills-ladder` checks that a skill is valid, says what an agent needs, and carries those facts. Read-only: it never changes a file.
 
 ```bash
 npx skills-ladder .
 ```
 
-An agent picks a skill by its description and uses it through its body. This checker asks whether a skill gives an agent what it needs for both: when to load it, what it needs, what it touches, and when it is done.
-
 | Rung | Means |
 |---|---|
 | **GOOD** | Valid: passes the [specification](https://agentskills.io/specification)'s hard rules, the same ones its reference validator (`skills-ref`) checks |
 | **BETTER** | Says when to use it, what it needs, what it touches, its steps, and when it's done |
-| **BEST** | BETTER, with those facts in a small block a tool can check |
+| **BEST** | BETTER, with those facts in a FAF Block |
 
 A skill that doesn't pass GOOD is reported as `NONE`.
 
@@ -78,7 +90,7 @@ B4–B7 look for a heading or a label at the start of a line (`**Needs:**`, `## 
 
 ## The FAF Block
 
-A FAF Block (also called a Context Block) glues a skill's facts into the skill: what it needs, what it reads and writes, where it reaches, whether it publishes, and when it's done. The model gets them all when it opens the skill.
+It sits right after the frontmatter, between two markers, as a YAML fence:
 
 ````markdown
 ---
