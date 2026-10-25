@@ -39,7 +39,7 @@ const WHEN = /\b(use[sd]?\s+(?:it\s+|this\s+(?:skill\s+)?)?(?:when|whenever|if|f
 const NOT_FOR = /\b(not for|don'?t use|do not use|avoid (?:using )?(?:it|this) (?:for|when))\b/i;
 
 // Body sections, written as a heading or a label at the start of a line.
-const label = (words: string) => new RegExp(`^\\s*(?:#{1,6}\\s+|[-*+]\\s+)?(?:\\*\\*|__)?(?:${words})\\b`, "im");
+const label = (words: string) => new RegExp(`^\\s*(?:>\\s*)?(?:#{1,6}\\s+|[-*+]\\s+)?(?:\\*\\*|__)?(?:${words})\\b`, "im");
 const NEEDS = label("needs|requires|requirements|prerequisites|dependencies|before you start");
 const TOUCHES = label("writes|reads|touches|side effects|changes|network|publishes|effects|read-only|safety");
 const DONE = label("done when|done-when|done_when|definition of done|success criteria|finished when|stop when|you(?:'re| are) done when|done");

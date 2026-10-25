@@ -77,6 +77,11 @@ test("BETTER: needs, touches, steps and done-when, in prose", () => {
   assert.equal(rungOf(runChecks(s, ctx())), "BETTER");
 });
 
+test("BETTER B4: a label inside a blockquote counts", () => {
+  const s = skill(`name: demo\n${GOOD_DESC}`, "\n# Notes\n\n> **Needs:** git 2.40 or later.\n");
+  assert.equal(status(s, "B4"), "pass");
+});
+
 test("BETTER B9: a missing linked file fails", () => {
   const s = skill(`name: demo\n${GOOD_DESC}`, "See [guide](references/guide.md) and [site](https://example.com).");
   assert.equal(status(s, "B9", ctx("demo", { exists: (p) => p !== "references/guide.md" })), "fail");
