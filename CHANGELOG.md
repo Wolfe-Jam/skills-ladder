@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.0 (2026-10-25)
 
 First version. Rates every `SKILL.md` under a path on a ladder (GOOD · BETTER · BEST), read-only.
 
