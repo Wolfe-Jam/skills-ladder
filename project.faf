@@ -1,0 +1,51 @@
+faf_version: "3.0"
+project:
+  name: skills-ladder
+  goal: "Rate Agent Skills (SKILL.md) on a ladder: GOOD (valid), BETTER (an agent can choose it correctly and use it safely), BEST (the facts in a checkable block). Read-only."
+  main_language: TypeScript
+  type: cli  # found: package.json bin
+stack:
+  frontend: slotignored
+  css_framework: slotignored
+  ui_library: slotignored
+  state_management: slotignored
+  backend: slotignored
+  api_type: slotignored
+  runtime: slotignored
+  database: slotignored
+  connection: slotignored
+  hosting: GitHub (npm from the first release)
+  build: TypeScript (tsc)
+  cicd: ""
+  monorepo_tool: slotignored
+  package_manager: slotignored
+  workspaces: slotignored
+  admin: slotignored
+  cache: slotignored
+  search: slotignored
+  storage: slotignored
+human_context:
+  who: developers and AI agents who write, install or review Agent Skills
+  what: a read-only checker that rates SKILL.md files GOOD, BETTER or BEST
+  why: a valid skill is not enough; an agent also needs to know when to load it, what it touches and when it is done
+  where: https://github.com/Wolfe-Jam/skills-ladder
+  when: started 2026-10-25; 0.1.0 not yet released
+  how: TypeScript on Node 22+; run npx skills-ladder <path>
+monorepo:
+  packages_count: slotignored
+  build_orchestrator: slotignored
+  versioning_strategy: slotignored
+  shared_configs: slotignored
+  remote_cache: slotignored
+tech_stack:
+  - TypeScript
+  - yaml
+key_files:
+  - package.json
+  - src/index.ts
+  - src/cli.ts
+  - README.md
+  - tsconfig.json
+commands:
+  build: npm run build
+  test: npm run test
