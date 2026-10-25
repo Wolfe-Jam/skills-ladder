@@ -1,15 +1,25 @@
 {
   "name": "skills-ladder",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Glue a skill's facts into SKILL.md with a FAF Block, and check they're there: rates Agent Skills GOOD, BETTER or BEST. Read-only.",
   "type": "module",
-  "bin": { "skills-ladder": "dist/cli.js" },
+  "bin": {
+    "skills-ladder": "dist/cli.js"
+  },
   "main": "dist/index.js",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
@@ -17,12 +27,33 @@
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
     "prepublishOnly": "npm run clean && npm run build && npm run typecheck && npm test"
   },
-  "keywords": ["agent-skills", "skill.md", "skills", "faf", "faf-block", "context-block", "linter", "checker", "agents"],
+  "keywords": [
+    "agent-skills",
+    "skill.md",
+    "skills",
+    "faf",
+    "faf-block",
+    "context-block",
+    "linter",
+    "checker",
+    "agents"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/Wolfe-Jam/skills-ladder#readme",
   "bugs": "https://github.com/Wolfe-Jam/skills-ladder/issues",
-  "engines": { "node": ">=22" },
-  "repository": { "type": "git", "url": "git+https://github.com/Wolfe-Jam/skills-ladder.git" },
-  "dependencies": { "yaml": "^2.8.1" },
-  "devDependencies": { "@types/node": "^26.2.0", "tsx": "^4.22.4", "typescript": "^6.0.3" }
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wolfe-Jam/skills-ladder.git"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
 }

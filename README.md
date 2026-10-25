@@ -35,7 +35,7 @@ For general linting (formatting, auto-fix, security scanning), use a linter such
 ## Example
 
 ```text
-skills-ladder 0.1.0 · 2 skills
+skills-ladder 0.1.1 · 2 skills
 
 BETTER  release-notes  release-notes/SKILL.md
   ✗ F1 One FAF Block, right after the frontmatter — No FAF Block. Add one between `<!-- faf:start -->` and `<!-- faf:end -->` (see the README).
@@ -133,7 +133,7 @@ The block holds facts only. Name access (`GITHUB_TOKEN`), never its value.
 
 ## The project around the skills
 
-`skills-ladder` rates each skill. The repo they live in can carry a `project.faf`, which [faf-cli](https://www.npmjs.com/package/faf-cli) scores against its app-type: `skills` for SKILL.md folders, `skills-plugin` for skills shipped as a plugin with a build and CI. The FAF Block's `project` field points to it, and F6 checks that it does.
+`skills-ladder` rates each skill. The repo they live in can carry a `project.faf`: a small YAML file of structured facts that define the project's context for AI, registered with IANA as [`application/vnd.faf+yaml`](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml). [faf-cli](https://www.npmjs.com/package/faf-cli) scores it against its app-type: `skills` for SKILL.md folders, `skills-plugin` for skills shipped as a plugin with a build and CI. The FAF Block's `project` field points to it, and F6 checks that it does.
 
 ```bash
 npx faf-cli auto                                # the repo: project.faf
