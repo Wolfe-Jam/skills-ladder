@@ -26,7 +26,7 @@ For general linting (formatting, auto-fix, security scanning), use a linter such
 skills-ladder 0.1.0 · 2 skills
 
 BETTER  release-notes  release-notes/SKILL.md
-  ✗ F1 One FAF block, right after the frontmatter — No FAF block. Add one between `<!-- faf:start -->` and `<!-- faf:end -->` (see the README).
+  ✗ F1 One FAF Block, right after the frontmatter — No FAF Block. Add one between `<!-- faf:start -->` and `<!-- faf:end -->` (see the README).
 
 GOOD  deploy  deploy/SKILL.md
   ✗ B5 Body says what it touches — Say what it reads, what it writes, and whether it sends or publishes anything. An agent should know before step 1.
@@ -65,7 +65,7 @@ By default each skill shows the failures that stand between it and the next rung
 
 B4–B7 look for a heading or a label at the start of a line (`**Needs:**`, `## Steps`, `**Done when:**`). They are heuristics: they find whether the section is there, not whether it is right.
 
-**BEST**: the FAF block
+**BEST**: the FAF Block
 
 | ID | Check |
 |---|---|
@@ -76,7 +76,9 @@ B4–B7 look for a heading or a label at the start of a line (`**Needs:**`, `## 
 | F5 | *(warning)* `writes: []`, but the steps mention writing files |
 | F6 | *(warning)* The repo has a `project.faf` and the block doesn't point to it |
 
-## The block
+## The FAF Block
+
+A FAF Block (also called a Context Block) glues a skill's facts into the skill: what it needs, what it reads and writes, where it reaches, whether it publishes, and when it's done. The model gets them all when it opens the skill.
 
 ````markdown
 ---
@@ -119,7 +121,7 @@ The block holds facts only. Name access (`GITHUB_TOKEN`), never its value.
 
 ## The project around the skills
 
-`skills-ladder` rates each skill. The repo they live in can carry a `project.faf`, which [faf-cli](https://www.npmjs.com/package/faf-cli) scores against its app-type: `skills` for SKILL.md folders, `skills-plugin` for skills shipped as a plugin with a build and CI. The FAF block's `project` field points to it, and F6 checks that it does.
+`skills-ladder` rates each skill. The repo they live in can carry a `project.faf`, which [faf-cli](https://www.npmjs.com/package/faf-cli) scores against its app-type: `skills` for SKILL.md folders, `skills-plugin` for skills shipped as a plugin with a build and CI. The FAF Block's `project` field points to it, and F6 checks that it does.
 
 ```bash
 npx faf-cli auto                                # the repo: project.faf
