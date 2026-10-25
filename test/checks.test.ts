@@ -126,6 +126,11 @@ test("BEST F4/F5: effects that disagree with the steps warn, never fail", () => 
   assert.equal(status(writes, "F5"), "warn");
 });
 
+test("BEST F4: naming a deploy test category is not a deploy step", () => {
+  const s = skill(`name: demo\n${GOOD_DESC}`, block(FULL_BLOCK) + "\n## Steps\n1. Tier 5 covers deploy/release checks.\n2. Write the plan.\n");
+  assert.equal(status(s, "F4"), "pass");
+});
+
 test("BEST F6: a repo with project.faf should be pointed to", () => {
   const s = skill(`name: demo\n${GOOD_DESC}`, block(FULL_BLOCK) + BETTER_BODY);
   assert.equal(status(s, "F6", ctx("demo", { projectFaf: true })), "warn");

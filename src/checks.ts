@@ -46,7 +46,8 @@ const DONE = label("done when|done-when|done_when|definition of done|success cri
 const STEPS_HEADING = label("steps|workflow|procedure|instructions|how to run|process");
 
 // Verbs in the steps that suggest effects, for the consistency warnings (F4, F5).
-const PUBLISH_VERBS = /\b(git push|npm publish|gh pr create|gh release create|gh issue create|publish(?:es|ing)?|deploy(?:s|ing)?|post(?:s|ing)? (?:to|on)|send(?:s|ing)? (?:an? )?(?:email|message)|tweet)\b/i;
+// Commands and actions only: the bare nouns ("deploy checks", "publishing") appear in plenty of read-only skills.
+const PUBLISH_VERBS = /\b(git push|npm publish|cargo publish|twine upload|gh (?:pr|release|issue) create|wrangler deploy|vercel deploy|deploy(?:s|ing)? (?:to|it|the)|publish(?:es|ing)? (?:to|it|the)|post(?:s|ing)? (?:to|on)|send(?:s|ing)? (?:an? )?(?:email|message)|tweet)\b/i;
 const WRITE_VERBS = /\b(write(?:s)? (?:to|the|a)|creat(?:e|es|ing) (?:a |the )?(?:file|folder|directory)|edit(?:s)? (?:the|a)|overwrit(?:e|es)|sed -i|> ?[\w./-]+\.\w+|save(?:s)? (?:to|the))\b/i;
 
 function str(v: unknown): string | null {
