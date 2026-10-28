@@ -2,7 +2,7 @@
 
 Glue a skill's facts into the skill, then check they're there.
 
-An agent chooses a skill by its description, then follows its body. The [Agent Skills specification](https://agentskills.io/specification) covers the choosing, plus an optional free-text `compatibility` line for environment needs. It has no field for what the skill reads and writes, where it reaches, whether it publishes, or when it's done. A **Context Block** (built on MIT, IANA `.faf` context) puts those facts at the top of the body, so the model has all of them the moment it opens the skill:
+An agent chooses a skill by its description, then follows its body. The [Agent Skills specification](https://agentskills.io/specification) covers the choosing, plus an optional free-text `compatibility` line for environment needs. It has no field for what the skill reads and writes, where it reaches, whether it publishes, or when it's done. A **Context Block** (built on the MIT licensed, IANA registered `.faf` context format) puts those facts at the top of the body, so the model has all of them the moment it opens the skill:
 
 ```yaml
 v: 1
@@ -90,7 +90,7 @@ B4–B7 look for a heading or a label at the start of a line (`**Needs:**`, `## 
 
 ## The Context Block
 
-Built on MIT, IANA `.faf` context ([`application/vnd.faf+yaml`](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)). Earlier versions called it the FAF Block; the markers are unchanged.
+Built on the MIT licensed, IANA registered `.faf` context format ([`application/vnd.faf+yaml`](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)). Earlier versions called it the FAF Block; the markers are unchanged.
 
 
 It sits right after the frontmatter, between two markers, as a YAML fence:
