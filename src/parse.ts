@@ -1,4 +1,4 @@
-// Split a SKILL.md into frontmatter, body and FAF Block. Pure: no file system access.
+// Split a SKILL.md into frontmatter, body and Context Block. Pure: no file system access.
 import { parse as parseYaml } from "yaml";
 
 export interface Frontmatter {
@@ -25,7 +25,7 @@ export interface ParsedSkill {
   frontmatter: Frontmatter;
   /** Everything after the frontmatter. */
   body: string;
-  /** The body with the FAF Block removed (what the steps are read from). */
+  /** The body with the Context Block removed (what the steps are read from). */
   prose: string;
   block: FafBlock | null;
   /** Line count of the whole file. */

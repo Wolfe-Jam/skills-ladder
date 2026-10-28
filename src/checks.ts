@@ -135,11 +135,11 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
   const bd = skill.block?.data ?? null;
   const prose = skill.prose;
 
-  if (bd && "needs" in bd) add("B4", "BETTER", "Body says what it needs", "pass", "In the FAF Block.");
+  if (bd && "needs" in bd) add("B4", "BETTER", "Body says what it needs", "pass", "In the Context Block.");
   else if (NEEDS.test(prose)) add("B4", "BETTER", "Body says what it needs", "pass");
   else add("B4", "BETTER", "Body says what it needs", "fail", "Add a Needs line: tools, versions and access, and what to do if one is missing.");
 
-  if (bd && ("writes" in bd || "reads" in bd || "publishes" in bd)) add("B5", "BETTER", "Body says what it touches", "pass", "In the FAF Block.");
+  if (bd && ("writes" in bd || "reads" in bd || "publishes" in bd)) add("B5", "BETTER", "Body says what it touches", "pass", "In the Context Block.");
   else if (TOUCHES.test(prose)) add("B5", "BETTER", "Body says what it touches", "pass");
   else add("B5", "BETTER", "Body says what it touches", "fail", "Say what it reads, what it writes, and whether it sends or publishes anything. An agent should know before step 1.");
 
@@ -147,7 +147,7 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
   if (numbered || STEPS_HEADING.test(prose)) add("B6", "BETTER", "Body gives ordered steps", "pass");
   else add("B6", "BETTER", "Body gives ordered steps", "fail", "Give the work as a numbered list of steps.");
 
-  if (bd && str(bd.done_when)) add("B7", "BETTER", "Body says when it is done", "pass", "In the FAF Block.");
+  if (bd && str(bd.done_when)) add("B7", "BETTER", "Body says when it is done", "pass", "In the Context Block.");
   else if (DONE.test(prose)) add("B7", "BETTER", "Body says when it is done", "pass");
   else add("B7", "BETTER", "Body says when it is done", "fail", "Add a Done when line: the finished state of the work (files, results), not a step in the conversation.");
 
@@ -166,19 +166,19 @@ export function runChecks(skill: ParsedSkill, ctx: SkillContext): Result[] {
   if (missing.length) add("B9", "BETTER", "Linked files exist", "fail", `Missing: ${missing.map((h) => `\`${h}\``).join(", ")}`);
   else add("B9", "BETTER", "Linked files exist", "pass", links.length ? `${links.length} checked` : "no local links");
 
-  // ---- BEST: the FAF Block ----
+  // ---- BEST: the Context Block ----
   const blk = skill.block;
   if (!blk) {
-    add("F1", "BEST", "One FAF Block, right after the frontmatter", "fail", "No FAF Block. Add one between `<!-- faf:start -->` and `<!-- faf:end -->` (see the README).");
+    add("F1", "BEST", "One Context Block, right after the frontmatter", "fail", "No Context Block. Add one between `<!-- faf:start -->` and `<!-- faf:end -->` (see the README).");
     for (const [id, t] of [["F2", "The block's YAML parses"], ["F3", "Required fields, right types"]] as const)
-      add(id, "BEST", t, "skip", "No FAF Block.");
+      add(id, "BEST", t, "skip", "No Context Block.");
     return out;
   }
   if (blk.starts !== 1 || blk.ends !== 1)
-    add("F1", "BEST", "One FAF Block, right after the frontmatter", "fail", `Found ${blk.starts} start and ${blk.ends} end markers; use exactly one of each.`);
+    add("F1", "BEST", "One Context Block, right after the frontmatter", "fail", `Found ${blk.starts} start and ${blk.ends} end markers; use exactly one of each.`);
   else if (!blk.placedFirst)
-    add("F1", "BEST", "One FAF Block, right after the frontmatter", "fail", "Move the block above the first heading, right after the frontmatter.");
-  else add("F1", "BEST", "One FAF Block, right after the frontmatter", "pass");
+    add("F1", "BEST", "One Context Block, right after the frontmatter", "fail", "Move the block above the first heading, right after the frontmatter.");
+  else add("F1", "BEST", "One Context Block, right after the frontmatter", "pass");
 
   if (!blk.data) add("F2", "BEST", "The block's YAML parses", "fail", blk.error ?? "No YAML inside the markers.");
   else add("F2", "BEST", "The block's YAML parses", "pass");

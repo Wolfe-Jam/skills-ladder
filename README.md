@@ -2,7 +2,7 @@
 
 Glue a skill's facts into the skill, then check they're there.
 
-An agent chooses a skill by its description, then follows its body. The [Agent Skills specification](https://agentskills.io/specification) covers the choosing, plus an optional free-text `compatibility` line for environment needs. It has no field for what the skill reads and writes, where it reaches, whether it publishes, or when it's done. A **FAF Block** (also called a Context Block) puts those facts at the top of the body, so the model has all of them the moment it opens the skill:
+An agent chooses a skill by its description, then follows its body. The [Agent Skills specification](https://agentskills.io/specification) covers the choosing, plus an optional free-text `compatibility` line for environment needs. It has no field for what the skill reads and writes, where it reaches, whether it publishes, or when it's done. A **Context Block** (built on the MIT licensed, IANA registered `.faf` context format) puts those facts at the top of the body, so the model has all of them the moment it opens the skill:
 
 ```yaml
 v: 1
@@ -24,7 +24,7 @@ npx skills-ladder .
 |---|---|
 | **GOOD** | Valid: passes the [specification](https://agentskills.io/specification)'s hard rules, the same ones its reference validator (`skills-ref`) checks |
 | **BETTER** | Says when to use it, what it needs, what it touches, its steps, and when it's done |
-| **BEST** | BETTER, with those facts in a FAF Block |
+| **BEST** | BETTER, with those facts in a Context Block |
 
 A skill that doesn't pass GOOD is reported as `NONE`.
 
@@ -38,7 +38,7 @@ For general linting (formatting, auto-fix, security scanning), use a linter such
 skills-ladder 0.1.1 · 2 skills
 
 BETTER  release-notes  release-notes/SKILL.md
-  ✗ F1 One FAF Block, right after the frontmatter — No FAF Block. Add one between `<!-- faf:start -->` and `<!-- faf:end -->` (see the README).
+  ✗ F1 One Context Block, right after the frontmatter — No Context Block. Add one between `<!-- faf:start -->` and `<!-- faf:end -->` (see the README).
 
 GOOD  deploy  deploy/SKILL.md
   ✗ B5 Body says what it touches — Say what it reads, what it writes, and whether it sends or publishes anything. An agent should know before step 1.
@@ -77,7 +77,7 @@ By default each skill shows the failures that stand between it and the next rung
 
 B4–B7 look for a heading or a label at the start of a line (`**Needs:**`, `## Steps`, `**Done when:**`). They are heuristics: they find whether the section is there, not whether it is right.
 
-**BEST**: the FAF Block
+**BEST**: the Context Block
 
 | ID | Check |
 |---|---|
@@ -88,7 +88,10 @@ B4–B7 look for a heading or a label at the start of a line (`**Needs:**`, `## 
 | F5 | *(warning)* `writes: []`, but the steps mention writing files |
 | F6 | *(warning)* The repo has a `project.faf` and the block doesn't point to it |
 
-## The FAF Block
+## The Context Block
+
+Built on the MIT licensed, IANA registered `.faf` context format ([`application/vnd.faf+yaml`](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)). Earlier versions called it the FAF Block; the markers are unchanged.
+
 
 It sits right after the frontmatter, between two markers, as a YAML fence:
 
@@ -133,7 +136,7 @@ The block holds facts only. Name access (`GITHUB_TOKEN`), never its value.
 
 ## The project around the skills
 
-`skills-ladder` rates each skill. The repo they live in can carry a `project.faf`: a small YAML file of structured facts that define the project's context for AI, registered with IANA as [`application/vnd.faf+yaml`](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml). [faf-cli](https://www.npmjs.com/package/faf-cli) scores it against its app-type: `skills` for SKILL.md folders, `skills-plugin` for skills shipped as a plugin with a build and CI. The FAF Block's `project` field points to it, and F6 checks that it does.
+`skills-ladder` rates each skill. The repo they live in can carry a `project.faf`: a small YAML file of structured facts that define the project's context for AI, registered with IANA as [`application/vnd.faf+yaml`](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml). [faf-cli](https://www.npmjs.com/package/faf-cli) scores it against its app-type: `skills` for SKILL.md folders, `skills-plugin` for skills shipped as a plugin with a build and CI. The Context Block's `project` field points to it, and F6 checks that it does.
 
 ```bash
 npx faf-cli auto                                # the repo: project.faf
