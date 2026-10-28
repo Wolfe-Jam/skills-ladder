@@ -1,0 +1,39 @@
+"""Six confusable skills, each with a GOOD description (what only) and a BETTER one (what + when + not for).
+Bodies are identical across variants. Run once; outputs committed before any selection run."""
+import json, os, sys
+S = {
+ "release-notes":   ("Drafts release notes from the git commits since the last tag",
+                     "Use when the user asks for release notes, a changelog entry or what changed since the last release.",
+                     "Not for commit messages or pull request descriptions."),
+ "commit-message":  ("Writes a commit message for the staged changes",
+                     "Use when the user is about to commit and asks for a commit message.",
+                     "Not for release notes, changelogs or pull request descriptions."),
+ "pr-description":  ("Writes a pull request description from the branch's changes",
+                     "Use when the user is opening or updating a pull request and wants its description.",
+                     "Not for commit messages or release notes."),
+ "api-docs":        ("Generates reference documentation for the exported functions in the source code",
+                     "Use when the user asks to document the API or update the API reference.",
+                     "Not for the README or inline code comments."),
+ "readme-update":   ("Updates the README so it matches the project's current state",
+                     "Use when the user says the README is out of date or asks to refresh it.",
+                     "Not for API reference docs or the changelog."),
+ "code-comments":   ("Adds explanatory comments inside source files",
+                     "Use when the user asks to comment, annotate or explain code in place.",
+                     "Not for README or API reference docs."),
+}
+QUERIES = {
+ "release-notes":  ["What changed since v1.2.0? Write it up for users.", "Put together the notes for the 1.3.0 release.", "Add an entry to CHANGELOG.md for this version.", "Summarise everything we shipped since the last tag."],
+ "commit-message": ["I've staged my changes, what should the commit say?", "Give me a good message for this commit.", "Write the commit text for what's staged.", "How should I describe this commit?"],
+ "pr-description": ["I'm opening a PR for this branch, write the description.", "Draft the body for my pull request.", "What should the PR say about these changes?", "Update my pull request's summary."],
+ "api-docs":       ["Document the exported functions.", "Our API reference is stale, regenerate it.", "Write reference docs for the public functions.", "Produce docs for what the module exports."],
+ "readme-update":  ["The README is out of date, fix it.", "Refresh the project readme.", "Make the README match the code as it is now.", "Our README still talks about the old setup, update it."],
+ "code-comments":  ["Explain this code with comments in the file.", "Annotate src/index.js so new people understand it.", "Add comments to the tricky parts of the code.", "Comment the functions in place."],
+ "NONE":           ["What's the capital of France?", "Convert 30 Celsius to Fahrenheit.", "Is 97 a prime number?", "Suggest a name for a cat."],
+}
+out=sys.argv[1]
+for v in ["GOOD","BETTER"]:
+    for n,(what,when,notfor) in S.items():
+        d = what+"." if v=="GOOD" else f"{what}. {when} {notfor}"
+        p=os.path.join(out,v,n); os.makedirs(p,exist_ok=True)
+        open(os.path.join(p,"SKILL.md"),"w").write(f"---\nname: {n}\ndescription: {d}\n---\n\n# {n}\n\n{what}.\n\n## Steps\n\n1. Read the relevant files.\n2. Do the work.\n3. Report what you did.\n")
+json.dump({"skills":S,"queries":QUERIES},open(os.path.join(out,"SELECTION.json"),"w"),indent=1)

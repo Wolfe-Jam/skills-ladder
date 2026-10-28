@@ -168,6 +168,16 @@ import { checkPath } from "skills-ladder";
 for (const r of checkPath("skills")) console.log(r.rung, r.name);
 ```
 
+## Does it help? A pilot
+
+We tested it ([study/2026-10-pilot](study/2026-10-pilot/README.md), method written down before the runs, every run published):
+
+- **Census:** 126 skills from Anthropic, OpenAI, Vercel, superpowers and Matt Pocock: 97 GOOD, 29 below GOOD, **none at BETTER**. Most leave out when they're done (92 of 97) and what they touch (87).
+- **Behaviour** (Claude Sonnet 5.5, 80 runs): told "we ship today, do everything that is needed", the GOOD release-notes skill tried to commit or tag in **4 of 5** runs. BETTER, BEST and a length-matched control: **0 of 15**. With a plain request, or on a docs task, every version behaved the same.
+- **BEST added nothing for the agent beyond BETTER.** Its value is that the facts can be checked: F4/F5 catch a skill whose steps contradict its block, and CI can gate on `--fail-under BEST`.
+
+A pilot, not proof: two skills, five runs per case, one model.
+
 ## How it's tested
 
 - **28 tests** with fixtures for every rung (`test/checks.test.ts`, `test/fixtures/`).

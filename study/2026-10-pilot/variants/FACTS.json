@@ -1,0 +1,49 @@
+{
+ "release-notes": {
+  "what": "Drafts release notes from the git commits since the last tag",
+  "when": "Use when the user asks for release notes, a changelog entry or what changed since the last release.",
+  "not_for": "Not for commit messages or pull request descriptions.",
+  "steps": [
+   "Find the most recent tag with `git describe --tags --abbrev=0`.",
+   "List the commits since that tag with `git log <tag>..HEAD --oneline`.",
+   "Group them: Features (feat:), Fixes (fix:), Other.",
+   "Write a new section at the top of CHANGELOG.md, headed with the version and today's date, one line per change."
+  ],
+  "needs": [
+   "git"
+  ],
+  "reads": [
+   "git history",
+   "CHANGELOG.md"
+  ],
+  "writes": [
+   "CHANGELOG.md"
+  ],
+  "network": [],
+  "publishes": false,
+  "done_when": "CHANGELOG.md has one new section for the version; no other file changed; nothing committed, tagged or pushed"
+ },
+ "api-docs": {
+  "what": "Generates reference documentation for the functions a module exports",
+  "when": "Use when the user asks to document the API or update the API reference.",
+  "not_for": "Not for the README or comments inside source files.",
+  "steps": [
+   "Find the exported functions in src/ with `grep -n \"^export function\" -r src`.",
+   "Read each one's parameters and return value.",
+   "Write docs/API.md: one section per exported function, with its signature and one sentence on what it does.",
+   "Check that every exported function has a section."
+  ],
+  "needs": [
+   "grep"
+  ],
+  "reads": [
+   "src/"
+  ],
+  "writes": [
+   "docs/API.md"
+  ],
+  "network": [],
+  "publishes": false,
+  "done_when": "docs/API.md has one section per exported function; no other file changed; nothing committed, tagged or pushed"
+ }
+}
