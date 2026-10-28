@@ -168,6 +168,13 @@ import { checkPath } from "skills-ladder";
 for (const r of checkPath("skills")) console.log(r.rung, r.name);
 ```
 
+## How it's tested
+
+- **28 tests** with fixtures for every rung (`test/checks.test.ts`, `test/fixtures/`).
+- **CI on every pull request:** macOS, Ubuntu and Windows, on Node 22 and 24.
+- **Used on real skills:** the 7 skills in [Wolfe-Jam/faf-skills](https://github.com/Wolfe-Jam/faf-skills) went from GOOD to BEST in [PR #12](https://github.com/Wolfe-Jam/faf-skills/pull/12). Those skills found two checker bugs (blockquote labels; F4 firing on the noun "deploy"), both fixed with tests.
+- **Small:** Node 22+, one dependency (`yaml`). Read-only.
+
 ## License
 
 MIT
