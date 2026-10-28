@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- README: a "How it's tested" section (tests, CI matrix, the faf-skills run).
 - The FAF Block is now called the Context Block (built on the MIT licensed, IANA registered `.faf` context format) in the README, help text and check messages. The markers (`faf:start`/`faf:end`), the YAML and the checks are unchanged.
 - README: the spec has an optional free-text `compatibility` line for environment needs; the README no longer says it has nothing.
 
