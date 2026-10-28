@@ -12,19 +12,21 @@
 **The honest one-liner:** *BETTER is what the agent needs. BEST is how you prove it's there.*
 
 ## A. Census: the best-known public skills (static)
-skills-ladder 0.1.x on five repos, cloned 2026-10-28.
+skills-ladder 0.1.x on six sources, cloned 2026-10-28.
 
-| Repo | Commit | Skills | NONE | GOOD | BETTER | BEST |
-|---|---|---|---|---|---|---|
-| anthropics/skills | dbd4588 (10-09) | 20 | 2 | 18 | 0 | 0 |
-| openai/skills | 49f948f (06-23) | 44 | 0 | 44 | 0 | 0 |
-| vercel-labs/agent-skills | 1a2c79d (10-27) | 9 | 4 | 5 | 0 | 0 |
-| obra/superpowers | 2ce8aa1 (10-21) | 15 | 0 | 15 | 0 | 0 |
-| mattpocock/skills | 59db609 (10-27) | 38 | 23 | 15 | 0 | 0 |
-| **Total** | | **126** | **29** | **97** | **0** | **0** |
+| Source | Commit | Skills | NONE | of which only an extra client field | GOOD | BETTER | BEST |
+|---|---|---|---|---|---|---|---|
+| anthropics/skills | dbd4588 (10-09) | 20 | 2 | 0 | 18 | 0 | 0 |
+| openai/skills | 49f948f (06-23) | 44 | 0 | 0 | 44 | 0 | 0 |
+| vercel-labs/agent-skills | 1a2c79d (10-27) | 9 | 4 | 0 | 5 | 0 | 0 |
+| obra/superpowers | 2ce8aa1 (10-21) | 15 | 0 | 0 | 15 | 0 | 0 |
+| mattpocock/skills | 59db609 (10-27) | 38 | 23 | 23 | 15 | 0 | 0 |
+| cursor/plugins `pstack/` (Lauren Tan) | c742dd6 (10-27) | 61 | 60 | 60 | 1 | 0 | 0 |
+| **Total** | | **187** | **89** | **83** | **98** | **0** | **0** |
 
-- **NONE** = fails the spec as the reference validator `skills-ref` checks it (verified in its source: `ALLOWED_FIELDS`, "Unexpected fields in frontmatter"). Mostly Claude Code-only fields such as `disable-model-invocation` (Matt Pocock, 23), names that don't match their folder (Vercel, 4), one description over 1,024 characters (Anthropic's `claude-api`, 1,068), and Anthropic's `template` starter.
-- **What the 97 GOOD skills leave out:** done-when 92 · what it touches 87 · what it needs 68 · description opens with what it does 33 · ordered steps 16 · "use when" 6.
+- **NONE** = fails the spec as the reference validator `skills-ref` checks it (in its source: `ALLOWED_FIELDS`, "Unexpected fields in frontmatter"). **83 of the 89 fail only because of a field a client reads but the spec doesn't list**, almost all `disable-model-invocation` (Claude Code and Cursor). Those skills work in those clients; they just aren't portable as written. The other 6: names that don't match their folder (Vercel, 4), one description over 1,024 characters (Anthropic's `claude-api`, 1,068), and Anthropic's `template` starter.
+- **Set the spec rule aside and the answer is the same:** none of the 187 would reach BETTER.
+- **How many of all 187 state each fact** (any rung): what it does first 148 · when to use it 140 · ordered steps 118 · **what it needs 32 · what it touches 12 · when it's done 8**.
 - **Caveat:** the checker looks for *labelled* facts. Some skills imply finishing or side effects in prose. "0 at BETTER" means none *state* these facts in a checkable way, not that an agent can't infer them.
 
 One well-known skill per repo:
