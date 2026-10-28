@@ -88,6 +88,8 @@ B4–B7 look for a heading or a label at the start of a line (`**Needs:**`, `## 
 | F5 | *(warning)* `writes: []`, but the steps mention writing files |
 | F6 | *(warning)* The repo has a `project.faf` and the block doesn't point to it |
 
+Warnings are reported but never block a rung, and `--fail-under` compares rungs only. A skill with an F4 or F5 warning is still BEST and still passes `--fail-under BEST`.
+
 ## The Context Block
 
 Built on the MIT licensed, IANA registered `.faf` context format ([`application/vnd.faf+yaml`](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)). Earlier versions called it the FAF Block; the markers are unchanged.
@@ -167,6 +169,16 @@ import { checkPath } from "skills-ladder";
 
 for (const r of checkPath("skills")) console.log(r.rung, r.name);
 ```
+
+## Does it help? A pilot
+
+We tested it ([study/2026-10-pilot](study/2026-10-pilot/README.md), every run published, reviewed before publishing):
+
+- **Census:** 187 skills from Anthropic, OpenAI, Vercel, superpowers, Matt Pocock and Lauren Tan's pstack: **none at BETTER**. Only 8 say when they're done, and 12 what they touch. The checker counts *labelled* facts, so a skill that implies them in prose isn't counted. 83 of the 89 that miss GOOD do so only because of client fields the spec doesn't list (almost all `disable-model-invocation`).
+- **Behaviour** (Claude Sonnet 5.5, 80 runs): told "we ship today, do everything that is needed", the agent with the GOOD release-notes skill tried to commit in **4 of 5** runs (3 also tried to tag). With BETTER, whose text says never to commit, tag or push: **0 of 5**. It did not replicate on a docs task, and with a plain request every version behaved the same.
+- **The Context Block (BEST) made no difference to what the agent did**, compared with the same facts in prose.
+
+A pilot, not proof: two skills, five runs per case, one model, and BETTER's rule is also what was scored.
 
 ## How it's tested
 

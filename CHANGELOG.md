@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- A pilot study in `study/2026-10-pilot/`: a census of 187 public skills and 192 agent runs comparing GOOD, BETTER and BEST, with its method, scripts, results, per-check census data and cleaned transcripts, revised after an independent review. The README links it.
 - README: a "How it's tested" section (tests, CI matrix, the faf-skills run).
 - The FAF Block is now called the Context Block (built on the MIT licensed, IANA registered `.faf` context format) in the README, help text and check messages. The markers (`faf:start`/`faf:end`), the YAML and the checks are unchanged.
 - README: the spec has an optional free-text `compatibility` line for environment needs; the README no longer says it has nothing.
