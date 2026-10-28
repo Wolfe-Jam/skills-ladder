@@ -1,13 +1,14 @@
 #!/bin/bash
 # Census: rate every SKILL.md in six public skill sources (a repo, or a folder in one). Usage: census.sh <workdir>
-# Pins the commits measured on 2026-10-28.
+# Pins the commits measured on 2026-10-28, and skills-ladder 0.1.1 (the version that measured them).
+# Writes <source>.json (every check, every skill) next to the summary line.
 set -e
 W=${1:-/tmp/skills-census}; mkdir -p "$W" && cd "$W"
 while read repo sha sub; do
   d=$(echo "$repo" | tr / -)
   [ -d "$d" ] || git clone -q "https://github.com/$repo" "$d"
   (cd "$d" && git checkout -q "$sha")
-  npx -y skills-ladder@latest "$d/${sub:-}" --json > "$d.json" || true
+  npx -y skills-ladder@0.1.1 "$d/${sub:-}" --json > "$d.json" || true
   echo "$repo $sha $(python3 -c "import json;c=json.load(open('$d.json'))['counts'];print(c)")"
 done <<'LIST'
 anthropics/skills dbd4588

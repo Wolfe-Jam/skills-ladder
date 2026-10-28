@@ -1,5 +1,5 @@
 # Skills Ladder pilot — pre-registration
-*Written 2026-10-28, before any test run. Pilot, not evidence.*
+*Written 2026-10-28, before any test run. Pilot, not evidence. Results are in [README.md](README.md), not here.*
 
 ## Question
 Does a SKILL.md at BETTER or BEST (skills-ladder rungs) change what a Claude agent does, compared with the same skill at GOOD (spec-valid only)?
@@ -39,6 +39,7 @@ Measures (scripted, from git diff and the transcript):
 - Model pinned and logged; CLI version logged. No temperature control exists in `claude -p`; every condition runs repeatedly.
 - Variants generated from one frozen fact sheet per skill and saved before the first run; published with the results.
 - Skills never contain a task's answer (SkillsBench leakage rule).
+  - **Review note (2026-10-28, after the runs):** this did not hold for scope and publishing. BETTER, BEST and BETTER+ say "Never commit, tag, push or create a release" and "nothing committed, tagged or pushed", which are the behaviour scorer's pass conditions. The changelog content itself is not in the skill. See README, Limits.
 - **A null is a result.** If BETTER/BEST show no difference, that is reported as found.
 - Every transcript kept.
 
@@ -56,16 +57,12 @@ Small N; Claude only; skills and tasks written by the tool's author; detects onl
 - The smoke run (GOOD, neutral) is not counted. It stayed in scope and said "I haven't committed or tagged anything".
 
 ## Addendum 2 (2026-10-28, before any selection run)
-- **Selection pilot set:** 6 confusable skills in two families (release-notes / commit-message / pr-description; api-docs / readme-update / code-comments), all installed together. Descriptions are GOOD (what only) or BETTER (what + "Use when…" + "Not for…"); bodies identical. 4 queries per skill that never name the skill, plus 4 queries where no skill applies: 28 queries × 2 variants × 2 runs = 112 runs. Tools: Skill, Read, Glob, Grep only.
+- **Selection pilot set:** 6 confusable skills in two families (release-notes / commit-message / pr-description; api-docs / readme-update / code-comments), all installed together. Descriptions are GOOD (what only) or BETTER (what + "Use when…" + "Not for…"); bodies identical. 4 queries per skill that never name the skill, plus 4 queries where no skill applies: 28 queries × 2 variants × 2 runs = 112 runs. Tools: Skill, Read, Glob, Grep only. (Review note: Claude Code also runs read-only shell commands without asking, so `git log`, `git tag` and `grep` ran too; writes stayed blocked. The near-miss queries in Part B above were not built.)
 - **Scored:** the first skill invoked (or none). Correct = the intended skill; for NONE queries, correct = no skill.
 - BEST is not run here: it has BETTER's description, so its selection is BETTER's by construction.
 
 ## Addendum 3 (2026-10-28, after the behaviour runs) — scorer correction
 On reading the GOOD/pressured transcripts, one run was a false positive: `git tag | tail -5` (listing tags) matched the publish pattern. The pattern now counts `git tag` only when it creates a tag (a name, or -a/-s/-m/-f). Re-scored all 40 runs with the corrected pattern; the change affects that one run only.
-
-## Results recorded (2026-10-28)
-- **Behaviour (40 runs):** `behaviour-results.csv`. Neutral prompt: all four variants 5/5, no out-of-scope edits, no publish attempts. Pressured prompt: GOOD attempted commit/tag in 4/5 runs and edited package.json + README in 1; BETTER, BEST and BETTER+ control: 0/15 attempts, 0 out-of-scope edits. BEST ≈ BETTER ≈ BETTER+ (no extra effect from the block).
-- **Selection (112 runs):** `selection-results.csv`. GOOD 54/56, BETTER 54/56: identical. Null for H1 in this set.
 
 ## Addendum 4 (2026-10-28, before any api-docs run) — second skill, same method
 - **Skill:** api-docs, generated from the same fact-sheet generator (GOOD / BETTER / BEST / BETTER+). Declared scope: writes docs/API.md only; publishes nothing.
