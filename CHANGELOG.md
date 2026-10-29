@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 (2026-10-29)
 
 - **Rate a public repo by URL:** `skills-ladder github:owner/repo[/path][@ref]` fetches one commit into a temporary folder (read-only, deleted afterwards), no clone or token needed (`GITHUB_TOKEN` is used if set). Text output names the commit; `--json` adds `sources`.
 - **`--census`:** one CSV row per target (`repo,commit,skills,NONE,GOOD,BETTER,BEST,skills_ladder`), the pilot census's columns plus the version. Pinned to the pilot's commits, all six census rows reproduce exactly.
