@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 (2026-10-29)
+
+- A short commit SHA in `@ref` (as `--census` prints it) now says to use the full 40-character SHA, a branch or a tag, instead of git's "couldn't find remote ref".
+
 ## 0.2.0 (2026-10-29)
 
 - **Rate a public repo by URL:** `skills-ladder github:owner/repo[/path][@ref]` fetches one commit into a temporary folder (read-only, deleted afterwards), no clone or token needed (`GITHUB_TOKEN` is used if set). Text output names the commit; `--json` adds `sources`.
