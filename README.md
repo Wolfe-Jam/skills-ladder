@@ -35,7 +35,7 @@ For general linting (formatting, auto-fix, security scanning), use a linter such
 ## Example
 
 ```text
-skills-ladder 0.2.0 · 2 skills
+skills-ladder 0.2.1 · 2 skills
 
 BETTER  release-notes  release-notes/SKILL.md
   ✗ F1 One Context Block, right after the frontmatter — No Context Block. Add one between `<!-- faf:start -->` and `<!-- faf:end -->` (see the README).
@@ -182,7 +182,7 @@ npx skills-ladder --census github:anthropics/skills@dbd4588f9e1033efb41dad4bef2f
 
 ```text
 repo,commit,skills,NONE,GOOD,BETTER,BEST,skills_ladder
-anthropics/skills,dbd4588,20,2,18,0,0,0.2.0
+anthropics/skills,dbd4588,20,2,18,0,0,0.2.1
 ```
 
 The columns match the pilot's [census.csv](study/2026-10-pilot/results/census.csv) (plus the version). Pinned to the same commits, all six of its rows come out the same.

@@ -73,7 +73,11 @@ export function fetchGithub(t: GithubTarget, base = process.env.SKILLS_LADDER_GI
   } catch (e) {
     cleanup();
     const err = e as Error & { stderr?: Buffer };
-    const why = err.stderr?.toString().trim().split("\n").pop() || err.message;
+    let why = err.stderr?.toString().trim().split("\n").pop() || err.message;
+    // git can't fetch a commit by a short SHA, and census rows print short ones.
+    if (t.ref && /^[0-9a-f]{7,39}$/i.test(t.ref) && /couldn't find remote ref/.test(why)) {
+      why = `${t.ref} looks like a short commit SHA. Use the full 40-character SHA, a branch or a tag.`;
+    }
     throw new Error(why.startsWith(label(t)) ? why : `${label(t)}${t.ref ? `@${t.ref}` : ""}: ${why}`);
   }
 }

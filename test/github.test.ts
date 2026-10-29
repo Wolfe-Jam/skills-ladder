@@ -74,3 +74,9 @@ test("github: a missing repo or folder exits 2 with a reason", () => {
 test("--census and --json together are refused", () => {
   assert.equal(run(".", "--census", "--json").status, 2);
 });
+
+test("github: a short SHA says to use the full one", () => {
+  const r = run(`github:acme/skills@${SHA.slice(0, 7)}`);
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, new RegExp(`${SHA.slice(0, 7)} looks like a short commit SHA. Use the full 40-character SHA, a branch or a tag.`));
+});
