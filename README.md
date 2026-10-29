@@ -149,9 +149,12 @@ npx skills-ladder skills --fail-under BEST      # each skill
 
 ```text
 skills-ladder [path...]          every SKILL.md under each path (default: .)
+skills-ladder github:owner/repo[/path][@ref]
+                                 a public GitHub repo or folder, fetched at one commit
   --json                         machine-readable output
   --all                          show passing checks too
   --fail-under <GOOD|BETTER|BEST>  exit 1 if any skill is below this rung
+  --census                       one CSV row per path: source, commit, counts, version
 ```
 
 Exit codes: `0` checked · `1` a skill is below `--fail-under`, or no `SKILL.md` was found · `2` bad arguments or an unreadable path.
@@ -161,6 +164,28 @@ In CI:
 ```bash
 npx skills-ladder skills --fail-under BETTER
 ```
+
+## Rate a public repo
+
+No clone needed. `github:` fetches one commit into a temporary folder, rates it and deletes the folder. `@ref` takes a branch, a tag or a full commit SHA; without it, the default branch. `GITHUB_TOKEN` is used if set (it raises GitHub's rate limit); public repos need none.
+
+```bash
+npx skills-ladder github:anthropics/skills
+npx skills-ladder github:cursor/plugins/pstack          # one folder
+```
+
+`--census` prints one CSV row per target, with the commit it measured and the version that measured it:
+
+```bash
+npx skills-ladder --census github:anthropics/skills@dbd4588f9e1033efb41dad4bef2f7947c8993d44
+```
+
+```text
+repo,commit,skills,NONE,GOOD,BETTER,BEST,skills_ladder
+anthropics/skills,dbd4588,20,2,18,0,0,0.2.0
+```
+
+The columns match the pilot's [census.csv](study/2026-10-pilot/results/census.csv) (plus the version). Pinned to the same commits, all six of its rows come out the same.
 
 ## Library
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Rate a public repo by URL:** `skills-ladder github:owner/repo[/path][@ref]` fetches one commit into a temporary folder (read-only, deleted afterwards), no clone or token needed (`GITHUB_TOKEN` is used if set). Text output names the commit; `--json` adds `sources`.
+- **`--census`:** one CSV row per target (`repo,commit,skills,NONE,GOOD,BETTER,BEST,skills_ladder`), the pilot census's columns plus the version. Pinned to the pilot's commits, all six census rows reproduce exactly.
 - A pilot study in `study/2026-10-pilot/`: a census of 187 public skills and 192 agent runs comparing GOOD, BETTER and BEST, with its method, scripts, results, per-check census data and cleaned transcripts, revised after an independent review. The README links it.
 - README: a "How it's tested" section (tests, CI matrix, the faf-skills run).
 - The FAF Block is now called the Context Block (built on the MIT licensed, IANA registered `.faf` context format) in the README, help text and check messages. The markers (`faf:start`/`faf:end`), the YAML and the checks are unchanged.
