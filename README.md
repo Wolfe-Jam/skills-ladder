@@ -2,6 +2,8 @@
 
 Glue a skill's facts into the skill, then check they're there.
 
+⭐ [Star it on GitHub](https://github.com/Wolfe-Jam/skills-ladder): bookmarks it for you, helps other devs find it too.
+
 An agent chooses a skill by its description, then follows its body. The [Agent Skills specification](https://agentskills.io/specification) covers the choosing, plus an optional free-text `compatibility` line for environment needs. It has no field for what the skill reads and writes, where it reaches, whether it publishes, or when it's done. A **Context Block** (built on the MIT licensed, IANA registered `.faf` context format) puts those facts at the top of the body, so the model has all of them the moment it opens the skill:
 
 ```yaml
