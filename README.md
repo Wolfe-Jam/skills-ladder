@@ -35,7 +35,7 @@ For general linting (formatting, auto-fix, security scanning), use a linter such
 ## Example
 
 ```text
-skills-ladder 0.1.1 · 2 skills
+skills-ladder 0.2.0 · 2 skills
 
 BETTER  release-notes  release-notes/SKILL.md
   ✗ F1 One Context Block, right after the frontmatter — No Context Block. Add one between `<!-- faf:start -->` and `<!-- faf:end -->` (see the README).

@@ -1,6 +1,6 @@
 {
   "name": "skills-ladder",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Glue a skill's facts into SKILL.md with a Context Block (built on MIT, IANA .faf context), and check they're there: rates Agent Skills GOOD, BETTER or BEST. Read-only.",
   "type": "module",
   "bin": {
